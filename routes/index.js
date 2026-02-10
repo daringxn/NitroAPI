@@ -1,10 +1,11 @@
 const express = require("express");
 const Joi = require("joi");
-const { execFile } = require("child_process");
+const os = require("os");
+const { spawn } = require("child_process");
 
 const router = express.Router();
 
-router.post("/room-create", (req, res) => {
+router.post("/room-create", async (req, res) => {
   const payload = req.body || {};
 
   const schema = Joi.object({
@@ -26,16 +27,49 @@ router.post("/room-create", (req, res) => {
     });
   }
 
-  execFile(payload.Type + ".exe", (error) => {
-    if (error) {
-      return res.status(500).json({
-        Result: "Fail",
-        Error: error.message,
-      });
-    }
+  const { Type, RoomName, PlayerCount, GameMode, Passcode, BotMode, MapID, CreatorName } = payload;
 
-    return res.json({ Result: "Success" });
-  });
+  try {
+    await new Promise((resolve, reject) => {
+      const server = spawn(os.platform() === "win32" ? "./" + Type + "/" + Type + ".exe" : "./" + Type + "/" + Type + ".x86_64", [
+        "-batchmode",
+        "-nographics",
+        "-server",
+        "-room",
+        RoomName,
+        "-count",
+        PlayerCount,
+        "-gamemode",
+        GameMode,
+        "-pass",
+        Passcode,
+        "-bot",
+        BotMode,
+        "-map",
+        MapID,
+        "-creator",
+        CreatorName,
+        "-quickmode",
+        "0",
+      ]);
+
+      server.on("error", (err) => {
+        reject(err);
+      });
+
+      server.stdout.on("data", (data) => {
+        resolve();
+        console.log(data.toString());
+      });
+    });
+  } catch (error) {
+    return res.status(500).json({
+      Result: "Fail",
+      Error: error.message,
+    });
+  }
+
+  return res.json({ Result: "Success" });
 });
 
 module.exports = router;
