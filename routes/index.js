@@ -17,6 +17,7 @@ router.post("/room-create", async (req, res) => {
     BotMode: Joi.required(),
     MapID: Joi.required(),
     CreatorName: Joi.required(),
+    QuickMode: Joi.required(),
   });
 
   const { error } = schema.validate(payload);
@@ -27,7 +28,7 @@ router.post("/room-create", async (req, res) => {
     });
   }
 
-  const { Type, RoomName, PlayerCount, GameMode, Passcode, BotMode, MapID, CreatorName } = payload;
+  const { Type, RoomName, PlayerCount, GameMode, Passcode, BotMode, MapID, CreatorName, QuickMode } = payload;
 
   try {
     await new Promise((resolve, reject) => {
@@ -50,7 +51,7 @@ router.post("/room-create", async (req, res) => {
         "-creator",
         CreatorName,
         "-quickmode",
-        "0",
+        QuickMode,
       ]);
 
       server.on("error", (err) => {
