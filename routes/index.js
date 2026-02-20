@@ -72,8 +72,13 @@ router.post("/room-create", async (req, res) => {
         });
       }
 
-      const pid = await new Promise((resolve, reject) => {
-        const process = spawn(os.platform() === "win32" ? "./" + Type + "/" + Type + ".exe" : "./" + Type + "/" + Type + ".x86_64", [
+      const instance = await Instance.create({
+        server_id: server.id,
+        app_name: Type,
+      });
+
+      const { pid, err } = await new Promise((resolve) => {
+        const process = spawn(os.platform() === "win32" ? "./" + Type + "/" + Type + "1.exe" : "./" + Type + "/" + Type + ".x86_64", [
           "-batchmode",
           "-nographics",
           "-server",
@@ -96,20 +101,25 @@ router.post("/room-create", async (req, res) => {
         ]);
 
         process.on("error", (err) => {
-          reject(err);
+          resolve({ pid: null, err });
         });
 
         process.stdout.on("data", (data) => {
-          resolve(process.pid);
+          resolve({ pid: process.pid, err: null });
           console.log(data.toString());
         });
       });
 
-      const instance = await Instance.create({
-        server_id: server.id,
-        app_name: Type,
-        process_id: pid,
-      });
+      if (err) {
+        await instance.destroy();
+        return res.status(500).json({
+          Result: "Fail",
+          Error: err.message,
+        });
+      }
+
+      instance.process_id = pid;
+      await instance.save();
 
       return res.json({
         Result: "Success",
@@ -175,7 +185,7 @@ router.post("/room-end", async (req, res) => {
       Error: "Invalid Instance ID",
     });
   }
-  
+
   if (instance.server_id === server.id) {
     try {
       process.kill(instance.process_id, "SIGTERM");
