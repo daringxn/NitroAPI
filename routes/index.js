@@ -98,6 +98,8 @@ router.post("/room-create", async (req, res) => {
           CreatorName,
           "-quickmode",
           QuickMode,
+          "-instanceid",
+          instance.id,
         ]);
 
         process.on("error", (err) => {
