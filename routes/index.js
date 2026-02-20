@@ -78,7 +78,7 @@ router.post("/room-create", async (req, res) => {
       });
 
       const { pid, err } = await new Promise((resolve) => {
-        const process = spawn(os.platform() === "win32" ? "./" + Type + "/" + Type + "1.exe" : "./" + Type + "/" + Type + ".x86_64", [
+        const process = spawn(os.platform() === "win32" ? "./" + Type + "/" + Type + ".exe" : "./" + Type + "/" + Type + ".x86_64", [
           "-batchmode",
           "-nographics",
           "-server",
