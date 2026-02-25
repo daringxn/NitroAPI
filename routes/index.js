@@ -45,6 +45,9 @@ router.post("/room-create", async (req, res) => {
     attributes: {
       include: [[Sequelize.fn("COUNT", Sequelize.col("instances.id")), "instance_count"]],
     },
+    where: {
+      status: 1,
+    },
     include: [
       {
         model: Instance,
@@ -54,13 +57,18 @@ router.post("/room-create", async (req, res) => {
       },
     ],
     group: ["Server.id"],
-    order: [
-      [Sequelize.literal("instance_count"), "ASC"],
-      ["id", "ASC"],
-    ],
+    having: Sequelize.literal("(`Server`.`limit` IS NULL OR `Server`.`limit` = 0 OR COUNT(`instances`.`id`) < `Server`.`limit`)"),
+    order: [[Sequelize.literal("instance_count"), "ASC"]],
     subQuery: false,
     limit: 1,
   });
+
+  if (!bestServer) {
+    return res.status(503).json({
+      Result: "Fail",
+      Error: "No eligible server available",
+    });
+  }
 
   if (bestServer.id === server.id) {
     try {

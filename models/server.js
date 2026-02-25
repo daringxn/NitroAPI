@@ -19,6 +19,8 @@ module.exports = (sequelize, DataTypes) => {
       protocol: DataTypes.STRING,
       hostname: DataTypes.STRING,
       port: DataTypes.INTEGER,
+      status: DataTypes.ENUM(1, 0),
+      limit: DataTypes.INTEGER,
     },
     {
       sequelize,
