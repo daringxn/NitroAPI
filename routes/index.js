@@ -95,6 +95,7 @@ router.post("/room-create", async (req, res) => {
       const instance = await Instance.create({
         server_id: server.id,
         app_name: Type,
+        args_RoomName: RoomName,
       });
 
       const { pid, err } = await new Promise((resolve) => {
