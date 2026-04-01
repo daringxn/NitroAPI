@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       server_id: DataTypes.INTEGER,
       app_name: DataTypes.STRING,
+      args_RoomName: DataTypes.STRING,
       process_id: DataTypes.INTEGER,
     },
     {
