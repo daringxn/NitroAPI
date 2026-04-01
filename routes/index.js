@@ -41,7 +41,7 @@ router.post("/room-create", async (req, res) => {
   if (duplicateRoomName) {
     return res.status(400).json({
       Result: "Fail",
-      Error: "Duplicate Room Name",
+      Error: "Duplicated Room Name",
     });
   }
 
