@@ -33,6 +33,18 @@ router.post("/room-create", async (req, res) => {
 
   const { Type, RoomName, PlayerCount, GameMode, Passcode, BotMode, MapID, CreatorName, QuickMode } = payload;
 
+  const duplicateRoomName = await Instance.findOne({
+    where: {
+      args_RoomName: RoomName,
+    },
+  });
+  if (duplicateRoomName) {
+    return res.status(400).json({
+      Result: "Fail",
+      Error: "Duplicate Room Name",
+    });
+  }
+
   const server = await Server.findOne({ where: { hostname: req.hostname } });
   if (!server) {
     return res.status(400).json({
