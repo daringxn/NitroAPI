@@ -21,6 +21,8 @@ router.post("/room-create", async (req, res) => {
     MapID: Joi.required(),
     CreatorName: Joi.required(),
     QuickMode: Joi.required(),
+    RaceMode: Joi.required(),
+    MirrorMode: Joi.required(),
   });
 
   const { error } = schema.validate(payload);
@@ -31,7 +33,7 @@ router.post("/room-create", async (req, res) => {
     });
   }
 
-  const { Type, RoomName, PlayerCount, GameMode, Passcode, BotMode, MapID, CreatorName, QuickMode } = payload;
+  const { Type, RoomName, PlayerCount, GameMode, Passcode, BotMode, MapID, CreatorName, QuickMode, RaceMode, MirrorMode } = payload;
 
   // const duplicateRoomName = await Instance.findOne({
   //   where: {
@@ -121,6 +123,10 @@ router.post("/room-create", async (req, res) => {
           QuickMode,
           "-instanceid",
           instance.id,
+          "-racemode",
+          RaceMode,
+          "-mirrormode",
+          MirrorMode,
         ]);
 
         process.on("error", (err) => {
